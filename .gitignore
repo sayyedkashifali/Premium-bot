@@ -1,0 +1,4 @@
+git add .gitignore
+git commit -m "Add .gitignore file"
+git push origin main
+git rm --cached config.py
