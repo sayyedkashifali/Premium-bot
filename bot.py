@@ -1,9 +1,9 @@
 from pyrogram import Client, filters
 from pyrogram.errors import FloodWait
+import config
 import time
-import config  # Import the config module to use environment variables
 
-# Initialize the bot using environment variables from config
+# Initialize the bot using environment variables from config.py
 app = Client(
     "my_bot",
     api_id=config.API_ID,
@@ -11,24 +11,22 @@ app = Client(
     bot_token=config.BOT_TOKEN
 )
 
+# Handle the /start command
 @app.on_message(filters.command("start"))
 async def start(client, message):
-    await message.reply("Hello! I am your bot.")
+    await message.reply("Hello! Welcome to the bot.")
 
-@app.on_message(filters.command("help"))
-async def help(client, message):
-    await message.reply("How can I assist you?")
-
-@app.on_message()
+# Handle other messages
+@app.on_message(filters.text)
 async def handle_message(client, message):
     try:
-        # Your message handling logic
-        pass
+        # Your main logic goes here
+        await message.reply(f"Received: {message.text}")
+
+    # Catch FloodWait exception and sleep for the required time
     except FloodWait as e:
-        print(f"FloodWait exception caught: Waiting for {e.x} seconds.")
+        print(f"FloodWait detected. Sleeping for {e.x} seconds.")
         time.sleep(e.x)
-        # Optionally retry the operation after waiting
-        # You may need to handle retry logic based on your specific needs
 
 if __name__ == "__main__":
     app.run()
