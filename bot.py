@@ -1,7 +1,7 @@
 import os
 import logging
 from pyrogram import Client, filters
-from pyrogram.errors import ApiIdInvalid, BotTokenInvalid
+from pyrogram.errors import ApiIdInvalid, AuthTokenInvalid
 
 # Set up logging to see errors and bot actions
 logging.basicConfig(level=logging.INFO)
@@ -33,17 +33,6 @@ async def start(client, message):
 @app.on_message(filters.command("help") & filters.private)
 async def help(client, message):
     await message.reply("I can assist you with various tasks. Try using /start to see what I can do.")
-
-# Error handling for invalid API or bot token
-@app.on_callback_query()
-async def on_callback_query(client, callback_query):
-    try:
-        # Handle callback query actions here
-        pass
-    except ApiIdInvalid:
-        logger.error("API_ID is invalid. Please check the API_ID and API_HASH in environment variables.")
-    except BotTokenInvalid:
-        logger.error("Bot token is invalid. Please check the BOT_TOKEN in environment variables.")
 
 # Main entry point for the bot
 if __name__ == "__main__":
