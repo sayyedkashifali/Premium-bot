@@ -3,9 +3,9 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 import points
 import ids
 import premium
+import config  # Import the config module
 
-# Replace YOUR_BOT_API_TOKEN with your actual bot token
-app = Client("my_bot", bot_token="7525512389:AAHmt4CO_2DwQkAAYnARrfVG0H_3FaWpYkk")
+app = Client("my_bot", api_id=config.API_ID, api_hash=config.API_HASH, bot_token=config.BOT_TOKEN)
 
 # Start command with menu buttons
 @app.on_message(filters.command("start"))
