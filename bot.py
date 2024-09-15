@@ -1,31 +1,34 @@
 from pyrogram import Client, filters
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-import points
-import ids
-import premium
-import config  # Import the config module
+from pyrogram.errors import FloodWait
+import time
+import config  # Import the config module to use environment variables
 
-app = Client("my_bot", api_id=config.API_ID, api_hash=config.API_HASH, bot_token=config.BOT_TOKEN)
+# Initialize the bot using environment variables from config
+app = Client(
+    "my_bot",
+    api_id=config.API_ID,
+    api_hash=config.API_HASH,
+    bot_token=config.BOT_TOKEN
+)
 
-# Start command with menu buttons
 @app.on_message(filters.command("start"))
-def start(client, message):
-    buttons = [[
-        InlineKeyboardButton("Buy Instagram ID", callback_data="buy_id"),
-        InlineKeyboardButton("Check Points", callback_data="check_points")
-    ], [
-        InlineKeyboardButton("Premium Features", callback_data="premium")
-    ]]
-    message.reply("Welcome to the bot!", reply_markup=InlineKeyboardMarkup(buttons))
+async def start(client, message):
+    await message.reply("Hello! I am your bot.")
 
-# Handling button presses
-@app.on_callback_query()
-def handle_callback(client, callback_query):
-    if callback_query.data == "buy_id":
-        ids.buy_instagram_id(client, callback_query)  # Call function from ids.py
-    elif callback_query.data == "check_points":
-        points.check_points(client, callback_query)  # Call function from points.py
-    elif callback_query.data == "premium":
-        premium.handle_premium(client, callback_query)  # Call function from premium.py
+@app.on_message(filters.command("help"))
+async def help(client, message):
+    await message.reply("How can I assist you?")
 
-app.run()
+@app.on_message()
+async def handle_message(client, message):
+    try:
+        # Your message handling logic
+        pass
+    except FloodWait as e:
+        print(f"FloodWait exception caught: Waiting for {e.x} seconds.")
+        time.sleep(e.x)
+        # Optionally retry the operation after waiting
+        # You may need to handle retry logic based on your specific needs
+
+if __name__ == "__main__":
+    app.run()
