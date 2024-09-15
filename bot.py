@@ -1,43 +1,46 @@
-import os
-import logging
 from pyrogram import Client, filters
-from pyrogram.errors import ApiIdInvalid, AuthTokenInvalid
+from pyrogram.types import Message
 
-# Set up logging to see errors and bot actions
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# Initialize the bot
+app = Client("my_bot")
 
-# Fetching environment variables
-API_ID = os.getenv("27317700")
-API_HASH = os.getenv("de1077f45e29e6abebcd2b9dd196be1d")
-BOT_TOKEN = os.getenv("7335984411:AAGwpqyCseguoIBo5wlW-Uqzos3NuCUiLcQ")
-
-# Check if required environment variables are provided
-if not API_ID or not API_HASH or not BOT_TOKEN:
-    raise ValueError("API_ID, API_HASH, and BOT_TOKEN must be set in environment variables!")
-
-# Initialize the bot with proper API details
-app = Client(
-    "my_bot",
-    api_id=API_ID,
-    api_hash=API_HASH,
-    bot_token=BOT_TOKEN
-)
-
-# Define a basic command handler for /start
+# Example greeting logic
 @app.on_message(filters.command("start") & filters.private)
-async def start(client, message):
-    await message.reply("Hello! I am your bot. How can I assist you today?")
+async def start(client: Client, message: Message):
+    await message.reply_text(f"Hello {message.from_user.first_name}, welcome to the bot!")
 
-# Example handler for /help command
-@app.on_message(filters.command("help") & filters.private)
-async def help(client, message):
-    await message.reply("I can assist you with various tasks. Try using /start to see what I can do.")
+# Example file request handler
+@app.on_message(filters.command("file"))
+async def file_request(client: Client, message: Message):
+    await message.reply_text("Which file would you like to request?")
 
-# Main entry point for the bot
+# Logic for the point system
+points = {}
+
+@app.on_message(filters.command("buy"))
+async def buy_item(client: Client, message: Message):
+    user_id = message.from_user.id
+    item = message.text.split(" ", 1)[1] if len(message.text.split()) > 1 else None
+    
+    if not item:
+        await message.reply_text("Please specify the item you want to buy.")
+        return
+    
+    user_points = points.get(user_id, 0)
+    
+    if user_points >= 10:  # Assume each item costs 10 points
+        points[user_id] -= 10
+        await message.reply_text(f"You bought {item} for 10 points! Remaining points: {points[user_id]}")
+    else:
+        await message.reply_text("You don't have enough points to buy this item.")
+
+# Adding points to user
+@app.on_message(filters.command("addpoints"))
+async def add_points(client: Client, message: Message):
+    user_id = message.from_user.id
+    points[user_id] = points.get(user_id, 0) + 10
+    await message.reply_text(f"10 points added! You now have {points[user_id]} points.")
+
+# Run the bot
 if __name__ == "__main__":
-    logger.info("Starting the bot...")
-    try:
-        app.run()
-    except Exception as e:
-        logger.error(f"Error while running the bot: {e}")
+    app.run()
