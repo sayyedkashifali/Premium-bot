@@ -1,36 +1,43 @@
-import os
-from pyrogram import Client
+from pyrogram import Client, filters
 from flask import Flask
 import threading
 
-# API credentials
-api_id = 27317700
-api_hash = "de1077f45e29e6abebcd2b9dd196be1d"
-bot_token = "7335984411:AAGwpqyCseguoIBo5wlW-Uqzos3NuCUiLcQ"
+# Flask app
+app_flask = Flask(__name__)
 
-# Create the Flask app for the dummy web server
-app = Flask(__name__)
+# Pyrogram Bot configuration
+api_id = 27317700  # Replace with your API ID
+api_hash = "de1077f45e29e6abebcd2b9dd196be1d"  # Replace with your API Hash
+bot_token = "7335984411:AAGwpqyCseguoIBo5wlW-Uqzos3NuCUiLcQ"  # Replace with your Bot Token
 
-@app.route("/")
-def home():
-    return "Bot is running"
+# Pyrogram Client
+bot = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
-# Start Flask server in a separate thread to avoid blocking the bot
-def run_server():
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+# Telegram Bot Command Handler for /start
+@bot.on_message(filters.command("start"))
+def start_command(client, message):
+    message.reply_text("Hello! This bot is powered by Flask and Pyrogram. How can I help you today?")
 
-# Start the Telegram bot
-telegram_app = Client(
-    "my_bot",
-    api_id=api_id,
-    api_hash=api_hash,
-    bot_token=bot_token
-)
+# Flask route for health check or any simple route
+@app_flask.route('/')
+def index():
+    return "Bot is running on Flask!"
 
-def start_bot():
-    telegram_app.run()
+# Function to run the Flask app
+def run_flask():
+    app_flask.run(host='0.0.0.0', port=8080)
 
-# Run both the Flask app and Telegram bot
+# Function to run the bot
+def run_bot():
+    bot.run()
+
 if __name__ == "__main__":
-    threading.Thread(target=run_server).start()
-    start_bot()
+    # Running Flask app and Telegram bot in separate threads
+    t1 = threading.Thread(target=run_flask)
+    t2 = threading.Thread(target=run_bot)
+
+    t1.start()
+    t2.start()
+
+    t1.join()
+    t2.join()
