@@ -1,47 +1,18 @@
-from info import API_ID, API_HASH, BOT_TOKEN
+import os
 from pyrogram import Client, filters
-from pyrogram.types import Message
 
-# Initialize the bot client
-app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
+# Fetching environment variables
+api_id = os.getenv("27317700")
+api_hash = os.getenv("de1077f45e29e6abebcd2b9dd196be1d")
+bot_token = os.getenv("7335984411:AAGwpqyCseguoIBo5wlW-Uqzos3NuCUiLcQ")
 
+# Initialize the bot with the environment variables
+app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
+
+# Sample bot logic
 @app.on_message(filters.command("start"))
-async def start_handler(client: Client, message: Message):
-    await message.reply("Hello! I'm your bot. How can I assist you today?")
+def start(client, message):
+    message.reply_text("Welcome to the bot!")
 
-@app.on_message(filters.command("help"))
-async def help_handler(client: Client, message: Message):
-    await message.reply("Here are the commands you can use:\n/start - Start the bot\n/help - Get help\n/request - Request a file\n/premium - Check premium features")
-
-@app.on_message(filters.command("request"))
-async def request_handler(client: Client, message: Message):
-    await message.reply("Please provide the file ID or name you want to request.")
-
-@app.on_message(filters.command("premium"))
-async def premium_handler(client: Client, message: Message):
-    await message.reply("Here is the list of premium features you can access.")
-
-@app.on_message(filters.text)
-async def handle_text_messages(client: Client, message: Message):
-    if not message.text.startswith('/'):
-        if "file" in message.text.lower():
-            await message.reply("It seems like you're requesting a file. Please use the /request command.")
-
-@app.on_message(filters.text)
-async def handle_premium_users(client: Client, message: Message):
-    user_id = message.from_user.id
-    if is_premium_user(user_id):
-        await message.reply("You are a premium user. Enjoy your features!")
-    else:
-        await message.reply("You are not a premium user. Upgrade to access more features.")
-
-def is_premium_user(user_id: int) -> bool:
-    # Dummy function for checking premium status
-    premium_users = [123456789, 987654321]  # Example list of premium user IDs
-    return user_id in premium_users
-
-if __name__ == "__main__":
-    try:
-        app.run()
-    except Exception as e:
-        print(f"An error occurred: {e}")
+# Run the bot
+app.run()
